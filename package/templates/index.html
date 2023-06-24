@@ -1,5 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Hello world</h1>
+    <h1>Name</h1>
+    <form action="/search" method="POST" id="form">
+        <select name="country" id="country">
+            <option value="0" label="Select a country" selected="selected">Select a country</option>
+            {% for c in countries %}
+                {% if c.value == country %}
+                    <option value="{{ c.value }}" selected="selected">{{ c.text }}</option>
+                {% else %}
+                    <option value="{{ c.value }}">{{ c.text }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <input type="text" name="name" placeholder="Device name" />
+        <input type="text" name="quantity" placeholder="Quantity" />
+        <input type="text" name="time_used" placeholder="Hours used" />
+        <button type="submit" id="submit" name="submit">Add</button>
+    </form>
 {% endblock %}

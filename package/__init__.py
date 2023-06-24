@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__, instance_relative_config=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'sqlite:///database.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or os.urandom(24)
 
 db = SQLAlchemy(app)
 
@@ -17,6 +18,9 @@ def create_app(test_config=None):
 
     from package import index
     app.register_blueprint(index.bp, url_prefix='/')
+
+    from package import search
+    app.register_blueprint(search.bp, url_prefix='/search')
       
     return app
 
