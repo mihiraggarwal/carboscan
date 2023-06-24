@@ -23,6 +23,9 @@ def create_app(test_config=None):
 
     from package import search
     app.register_blueprint(search.bp, url_prefix='/search')
+
+    from package import result
+    app.register_blueprint(result.bp, url_prefix='/result')
       
     return app
 
