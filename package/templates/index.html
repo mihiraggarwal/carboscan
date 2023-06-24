@@ -19,8 +19,8 @@
 {% block content %}
     <h1>Name</h1>
     <form action="{{ url_for('search.search') }}" method="POST">
-        <select name="country" id="country">
-            <option value="0" label="Select a country" selected="selected">Select a country</option>
+        <select name="country" id="country" required>
+            <option value="" label="Select a country" selected="selected">Select a country</option>
             {% for c in countries %}
                 {% if c.value == country %}
                     <option value="{{ c.value }}" selected="selected">{{ c.text }}</option>
@@ -29,9 +29,14 @@
                 {% endif %}
             {% endfor %}
         </select>
-        <input type="text" name="name" placeholder="Device name" id="name" />
-        <input type="text" name="quantity" placeholder="Quantity" id="quantity" />
-        <input type="text" name="time_used" placeholder="Hours used" id="time_used" />
+        <select name="name" id="name" required>
+            <option value="" label="Select a device" selected="selected">Select a device</option>
+            {% for p in products %}
+                <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="quantity" placeholder="Quantity" id="quantity" required />
+        <input type="text" name="time_used" placeholder="Hours used" id="time_used" required />
         <button type="submit" name="submit">Add</button>
     </form>
     <a href="{{ url_for('result.result') }}"><button>Submit</button></a>
