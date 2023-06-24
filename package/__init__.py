@@ -11,6 +11,8 @@ db = SQLAlchemy(app)
 # Comment this during production
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
+from package.models.product import Product
+
 def create_app(test_config=None):
     
     with app.app_context():
