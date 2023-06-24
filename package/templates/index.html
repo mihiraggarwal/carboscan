@@ -18,18 +18,20 @@
 
 {% block content %}
     <h1>Name</h1>
-    <select name="country" id="country">
-        <option value="0" label="Select a country" selected="selected">Select a country</option>
-        {% for c in countries %}
-            {% if c.value == country %}
-                <option value="{{ c.value }}" selected="selected">{{ c.text }}</option>
-            {% else %}
-                <option value="{{ c.value }}">{{ c.text }}</option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <input type="text" name="name" placeholder="Device name" id="name" />
-    <input type="text" name="quantity" placeholder="Quantity" id="quantity" />
-    <input type="text" name="time_used" placeholder="Hours used" id="time_used" />
-    <button id="addBtn" onclick="addData()">Add</button>
+    <form action="{{ url_for('search.search') }}" method="POST">
+        <select name="country" id="country">
+            <option value="0" label="Select a country" selected="selected">Select a country</option>
+            {% for c in countries %}
+                {% if c.value == country %}
+                    <option value="{{ c.value }}" selected="selected">{{ c.text }}</option>
+                {% else %}
+                    <option value="{{ c.value }}">{{ c.text }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <input type="text" name="name" placeholder="Device name" id="name" />
+        <input type="text" name="quantity" placeholder="Quantity" id="quantity" />
+        <input type="text" name="time_used" placeholder="Hours used" id="time_used" />
+        <button type="submit" name="submit">Add</button>
+    </form>
 {% endblock %}
