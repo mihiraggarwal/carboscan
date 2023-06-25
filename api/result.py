@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from flask import Blueprint, make_response, redirect, render_template, request, url_for
 
-from package.models.product import Product
+from api.models.product import Product
 
 bp = Blueprint('result', __name__)
 

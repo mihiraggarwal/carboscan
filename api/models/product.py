@@ -1,4 +1,4 @@
-from package.main import db
+from api.main import db
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
