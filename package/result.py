@@ -47,19 +47,45 @@ def runcmd(cmd, verbose = False, *args, **kwargs):
     pass
 runcmd("wget -P /tmp https://raw.githubusercontent.com/h4pZ/rose-pine-matplotlib/main/themes/rose-pine.mplstyle")
 
-def create_subplots(names,data_user,data_man):
-    # create data
-    x = [i[1] for i in names]
-    y1 = [10, 20, 10, 30]
-    y2 = [20, 25, 15, 25]
+def create_subplots(elem_dict):
+    # product name: product emission, manufacturing emission
+
+    X = list(elem_dict.keys())
+
+    keys = list(elem_dict.values())
+    #emission per product
+    products_emission = [i[0] for i in keys]
     
-    # plot bars in stack manner
-    plt.bar(x, y1)
-    plt.bar(x, y2, bottom=y1)
-    plt.xlabel("Product")
-    plt.ylabel("CO2 Emission(kg/annum)")
-    plt.legend(["Your yearly emission", "Product Manufacturing emission"])
-    plt.title("CO2 Emissions")
+    # 1
+    Y1 = sum(products_emission)
+    # 2
+    Y2 = products_emission
+    # 3
+    Y3 = [i/(360*24) for i in products_emission]
+    # 4
+    Y4 = [i[0] for i in keys]
+    Y5 = [i[1] for i in keys]
+    
+    figure, axis = plt.subplots(2, 2)
+    
+    # 1. Your total emission
+    axis[0, 0].bar(['total emission'], Y1)
+    axis[0, 0].set_title("Total Emission(kg/annum)")
+    
+    # 2. Emission per product
+    axis[0, 1].bar(X, Y2)
+    axis[0, 1].set_title("CO2 Emission per Product(kg/annum)")
+    
+    # 3. Hourly emission per device
+    axis[1, 0].bar(X, Y3)
+    axis[1, 0].set_title("Hourly Emission(kg) per Device")
+    
+    # 4. broken down emission - manufacturing+usage emission
+    axis[1, 1].bar(X, Y5)
+    axis[1, 1].bar(X, Y4,bottom=Y5)
+    axis[1, 1].set_title("Usage(y) v Manufacturing Emission(r)")
+
+    plt.subplots_adjust(hspace=0.5,wspace=0.5)
 
     # path exists
     if os.path.exists("package/static/chart.png"):
@@ -68,47 +94,32 @@ def create_subplots(names,data_user,data_man):
     else:
         plt.savefig("package/static/chart.png")
 
-def api_func():
+def api_func(country_id,yearly_pow):
     data = {
     "emission_factor": {
         "id": "electricity-energy_source_grid_mix",
-        "region": "$regionCode" #$regionCode is a string value based on the location provided by the user
+        "region": f"{country_id}"
     },
     "parameters": {
-        "energy": "$energyconsumption", #$energyconsumption - yearly usage is an int value (so remove the quotes here) based on calculations mentioned in the whataspp message, do note reals have to be rounded off
+        "energy": yearly_pow,
         "energy_unit": "kWh"
     }
     }
 
     url = "https://beta3.api.climatiq.io/estimate"
     api_key = os.environ.get('CLIMATIO_API_KEY')
-    post_request = requests.post(url, json = data, headers = {f"Authorization":"Bearer {api_key}"}) #$API_KEY is the api key
+    post_request = requests.post(url, json = data, headers = {"Authorization":f"Bearer {api_key}"})
 
-    post_response = post_request.json()
-    print(post_response)
+    return post_request.json()
 
-    """
-    in the post_response there is a dictionary like this -
-    "constituent_gases": {
-    "co2e_total": 2496.2,
-    "co2e_other": null,
-    "co2": 2496.2,
-    "ch4": null,
-    "n2o": null
-    }
-
-    from this we can pick up the co2e_total value which gives the carbon emissions (CO2 and equivalents) in the kg CO2e unit.
-    """
-
-def calc_emission(duration,country_id,power_duration,rating,quantiy):
-
+def calc_emission(duration,country_id,production_emission,power_duration,rating,quantiy):
+    # returns emissions per device
     daily_pow = (duration/power_duration)*rating*quantiy
     yearly_pow = daily_pow*365/1000
     yearly_pow = round(yearly_pow)
-
-    # api_func() call -> return
-
-
+    post_response = api_func(country_id,yearly_pow)
+    total_emissions = production_emission*quantiy + post_response['co2e_total']
+    return total_emissions
 
 @bp.route('/', methods=['GET'])
 def result():
@@ -126,9 +137,18 @@ def result():
             # expected average emission per entered product
             db_records = dbsearch(id_list)
             # TODO: get list of emissions for user from api
-
+        emission_dict = {}
+        for elem in rl:
+            for i in db_records:
+                if i[0] == elem[1]:
+                    name,power_duration,production_emission,prod_rating = i[1],i[4],i[2],i[3]
+                    break
+            prod_emission = calc_emission(elem[3],elem[0],production_emission,power_duration,prod_rating,elem[2])
+            
+            emission_dict[name] = prod_emission,production_emission
+            print(emission_dict)
         with plt.style.context("/tmp/rose-pine.mplstyle"):
-            create_subplots(id_list,user_records,db_records)
+            create_subplots(emission_dict)
 
         resp = make_response(render_template('result.html'))
         resp.set_cookie('uid', '', expires=0)
