@@ -44,27 +44,19 @@ def runcmd(cmd, verbose = False, *args, **kwargs):
     pass
 runcmd("wget -P /tmp https://raw.githubusercontent.com/h4pZ/rose-pine-matplotlib/main/themes/rose-pine.mplstyle")
 
-def create_subplots():
-    species = (
-    "Adelie\n $\\mu=$3700.66g",
-    "Chinstrap\n $\\mu=$3733.09g",
-    "Gentoo\n $\\mu=5076.02g$",
-    )
-    weight_counts = {
-        "Below": np.array([70, 31, 58]),
-        "Above": np.array([82, 37, 66]),
-    }
-    width = 0.5
-
-    fig, ax = plt.subplots()
-    bottom = np.zeros(3)
-
-    for boolean, weight_count in weight_counts.items():
-        p = ax.bar(species, weight_count, width, label=boolean, bottom=bottom)
-        bottom += weight_count
-
-    ax.set_title("Number of penguins with above average body mass")
-    ax.legend(loc="upper right")
+def create_subplots(names,data_user,data_man):
+    # create data
+    x = [i[1] for i in names]
+    y1 = [10, 20, 10, 30]
+    y2 = [20, 25, 15, 25]
+    
+    # plot bars in stack manner
+    plt.bar(x, y1)
+    plt.bar(x, y2, bottom=y1)
+    plt.xlabel("Product")
+    plt.ylabel("CO2 Emission(kg/annum)")
+    plt.legend(["Your yearly emission", "Product Manufacturing emission"])
+    plt.title("CO2 Emissions")
 
     # path exists
     if os.path.exists("package/static/chart.png"):
@@ -72,8 +64,10 @@ def create_subplots():
         plt.savefig("package/static/chart.png")
     else:
         plt.savefig("package/static/chart.png")
-with plt.style.context("/tmp/rose-pine.mplstyle"):
-    create_subplots() 
+
+def calc_emission(duration,name,power_duration,rating,quantiy):
+    daily_pow = (duration/power_duration)*rating*quantiy
+    # yearly_pow = 
 
 @bp.route('/', methods=['GET'])
 def result():
@@ -90,8 +84,10 @@ def result():
                 name_list.append(i[1])
             # expected average emission per entered product
             db_records = dbsearch(name_list)
-            avg_emission = 
+            # TODO: get list of emissions for user from api
 
+        with plt.style.context("/tmp/rose-pine.mplstyle"):
+            create_subplots(name_list,user_records,db_records)
 
         resp = make_response(render_template('result.html'))
         resp.set_cookie('uid', '', expires=0)
