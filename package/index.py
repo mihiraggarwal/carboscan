@@ -264,9 +264,15 @@ def index():
             uid = random.randint(10000000, 99999999)
         with open(f'{uid}.csv', 'a+'):
             pass
-        resp = make_response(render_template('index.html', countries=countries, products=products))
+        if country is None:
+            resp = make_response(render_template('index.html', countries=countries, products=products))
+        else:
+            resp = make_response(render_template('index.html', countries=countries, products=products, country=country))
         cookie = f'{uid}'.encode()
         resp.set_cookie('uid', cookie)
         return resp
     else:
-        return render_template("index.html", countries=countries, products=products)
+        if country is None:
+            return render_template("index.html", countries=countries, products=products)
+        else:
+            return render_template("index.html", countries=countries, products=products, country=country)            
