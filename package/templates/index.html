@@ -17,27 +17,31 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Name</h1>
-    <form action="{{ url_for('search.search') }}" method="POST">
-        <select name="country" id="country" required>
-            <option value="" label="Select a country" selected="selected">Select a country</option>
-            {% for c in countries %}
-                {% if c.value == country %}
-                    <option value="{{ c.value }}" selected="selected">{{ c.text }}</option>
-                {% else %}
-                    <option value="{{ c.value }}">{{ c.text }}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
-        <select name="name" id="name" required>
-            <option value="" label="Select a device" selected="selected">Select a device</option>
-            {% for p in products %}
-                <option value="{{ p.id }}">{{ p.name }}</option>
-            {% endfor %}
-        </select>
-        <input type="text" name="quantity" placeholder="Quantity" id="quantity" required />
-        <input type="text" name="time_used" placeholder="Hours used" id="time_used" required />
-        <button type="submit" name="submit">Add</button>
-    </form>
-    <a href="{{ url_for('result.result') }}"><button>Submit</button></a>
+    <div class="container">
+        <h1>CarboScan</h1>
+        <form action="{{ url_for('search.search') }}" method="POST">
+            <select name="country" id="country" required>
+                <option value="" label="Select a country" selected="selected">Select a country</option>
+                {% for c in countries %}
+                    {% if c.value == country %}
+                        <option value="{{ c.value }}" selected="selected">{{ c.text }}</option>
+                    {% else %}
+                        <option value="{{ c.value }}">{{ c.text }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <select name="name" id="name" required>
+                <option value="" label="Select a device" selected="selected">Select a device</option>
+                {% for p in products %}
+                    <option value="{{ p.id }}">{{ p.name }}</option>
+                {% endfor %}
+            </select>
+            <div class="input-container">
+                <input type="text" name="quantity" placeholder="Quantity" id="quantity" required />
+                <input type="text" name="time_used" placeholder="Hours used per day" id="time_used" required />
+            </div>
+            <button type="submit" name="submit" id="addBtn">Add</button>
+        </form>
+        <a href="{{ url_for('result.result') }}"><button id="submitBtn">Results</button></a>
+    </div>
 {% endblock %}
