@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<img src="{{ url_for('static', filename='chart.png') }}" alt="chart visualization">
+<div>
+    <div>
+        <img class="marginauto" src="{{ url_for('static', filename='chart.png') }}" alt="chart visualization" />
+    </div>
+    <div>
+        <p>Your total CO2 emissions for the past year: <b>{{ total_emission }} kg</b></p>
+        <p>Your daily CO2 emission: <b>{{ day_emission }} kg</b></p>
+    </div>
+</div>
 {% endblock content %}

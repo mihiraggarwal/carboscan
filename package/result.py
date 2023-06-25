@@ -12,24 +12,18 @@ bp = Blueprint('result', __name__)
 load_dotenv()
 
 def dbsearch(id_list:list):
-    try:
-        sqliteConnection = sqlite3.connect('../instance/database.db')
-        cursor = sqliteConnection.cursor()
-        print("Database created and Successfully Connected to SQLite")
+    sqliteConnection = sqlite3.connect('../instance/$databasename')  # replace $databasename with file name
+    cursor = sqliteConnection.cursor()
+    print("Database created and Successfully Connected to SQLite")
 
-        sqlite_select_Query = "select * from devices where dev_id in {}".format(id_list)
-        cursor.execute(sqlite_select_Query)
-        # dev_id, deviceName, productEmission, powerRating, powerDuration
-        records = cursor.fetchall()
-        cursor.close()
-
-    except sqlite3.Error as error:
-        print("Error while connecting to sqlite", error)
-    finally:
-        if sqliteConnection:
-            sqliteConnection.close()
-            print("The SQLite connection is closed")
-            return records
+    sqlite_select_Query = "select * from devices where dev_id in {}".format(id_list)
+    cursor.execute(sqlite_select_Query)
+    # dev_id, deviceName, productEmission, powerRating, powerDuration
+    records = cursor.fetchall()
+    cursor.close()
+    sqliteConnection.close()
+    print("The SQLite connection is closed")
+    return records
 
 
 def runcmd(cmd, verbose = False, *args, **kwargs):
@@ -52,19 +46,19 @@ def create_subplots(elem_dict):
 
     X = list(elem_dict.keys())
 
-    keys = list(elem_dict.values())
+    values = list(elem_dict.values())
     #emission per product
-    products_emission = [i[0] for i in keys]
+    products_emission = [i[0] for i in values]
     
     # 1
     Y1 = sum(products_emission)
     # 2
     Y2 = products_emission
     # 3
-    Y3 = [i/(360*24) for i in products_emission]
+    Y3 = [i/(365*24) for i in products_emission]
     # 4
-    Y4 = [i[0] for i in keys]
-    Y5 = [i[1] for i in keys]
+    Y4 = [i[0] for i in values]
+    Y5 = [i[1] for i in values]
     
     figure, axis = plt.subplots(2, 2)
     
@@ -136,7 +130,6 @@ def result():
                 id_list.append(i[1])
             # expected average emission per entered product
             db_records = dbsearch(id_list)
-            # TODO: get list of emissions for user from api
         emission_dict = {}
         for elem in rl:
             for i in db_records:
@@ -146,11 +139,18 @@ def result():
             prod_emission = calc_emission(elem[3],elem[0],production_emission,power_duration,prod_rating,elem[2])
             
             emission_dict[name] = prod_emission,production_emission
+            products_emission = [i[0] for i in db_records.values()]
+            total_emission = sum(products_emission)
+            day_emmission = total_emission/(365*24)
+
+            # 1
+            Y1 = sum(products_emission)
+
             print(emission_dict)
         with plt.style.context("/tmp/rose-pine.mplstyle"):
             create_subplots(emission_dict)
 
-        resp = make_response(render_template('result.html'))
+        resp = make_response(render_template('result.html', total_emission=total_emission, day_emmission=day_emmission))
         resp.set_cookie('uid', '', expires=0)
         os.remove(f'{cookie}.csv')
         return resp
