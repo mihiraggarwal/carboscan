@@ -145,3 +145,14 @@ button:hover {
   color: var(--prim-bg);
   transition: 250ms ease-in-out;
 }
+
+.marginauto {
+  margin: 10px auto 20px;
+  display: block;
+}
+
+p {
+  text-align: center;
+  color: #fff;
+  font-family: airbnb-medium;
+}
