@@ -1,6 +1,6 @@
 import os
 import matplotlib.pyplot as plt
-import subprocess
+
 from flask import Blueprint, make_response, redirect, render_template, request, url_for
 
 from package.models.product import Product
