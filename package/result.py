@@ -1,4 +1,5 @@
-from flask import Blueprint, redirect, request, url_for
+import os
+from flask import Blueprint, make_response, redirect, render_template, request, url_for
 
 from package.models.product import Product
 
@@ -14,5 +15,9 @@ def result():
                 i = i.split()
                 i = [*i[:-1], i[-1][:-1]]
                 # calculations
+        resp = make_response(render_template('result.html'))
+        resp.set_cookie('uid', '', expires=0)
+        os.remove(f'{cookie}.csv')
+        return resp
     else:
         return redirect(url_for('index.index'))
