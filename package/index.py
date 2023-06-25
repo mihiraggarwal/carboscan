@@ -5,10 +5,8 @@ from flask import Blueprint, make_response, render_template, request
 from package.models.product import Product
 
 bp = Blueprint('index', __name__)
-from package import app
-with app.app_context():
-    res = Product.query.all()
 
+res = Product.query.all()
 products = [{"id": i.id, "name": i.name} for i in res]
 
 countries = [
@@ -277,4 +275,4 @@ def index():
         if country is None:
             return render_template("index.html", countries=countries, products=products)
         else:
-            return render_template("index.html", countries=countries, products=products, country=country)            
+            return render_template("index.html", countries=countries, products=products, country=country)

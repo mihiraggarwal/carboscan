@@ -1,77 +1,147 @@
 @font-face {
-    font-family: "airbnb-medium";
-    src: url("font/AirbnbCerealMedium.ttf");
+  font-family: "airbnb-medium";
+  src: url("font/AirbnbCerealMedium.ttf");
 }
 
 @font-face {
-    font-family: "ibm-plex-sans";
-    src: url("font/IBMPlexSans-Regular.ttf");
+  font-family: "ibm-plex-sans";
+  src: url("font/IBMPlexSans-Regular.ttf");
+}
+
+:root {
+  --prim-bg: #191724;
+  --prim: #eb6f92;
+  --prim-lgt: #ADD8E6;
+}
+
+body {
+  background-color: var(--prim-bg);
+  box-sizing: border-box;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5vh;
 }
 
 h1 {
-    font-family: airbnb-medium;
-    margin-bottom: auto;
+  font-family: airbnb-medium;
+  margin-bottom: auto;
+  color: var(--prim);
 }
 
 form {
-    display: flex;
-    width: 50%;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid #000;
-    border-radius: 5px;
-    padding: 3em 0.5em;
-    gap: 5vh
+  display: flex;
+  width: 50%;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid var(--prim);
+  border-radius: 5px;
+  padding: 3em 0.5em;
+  gap: 5vh
 }
 
-form > input, form > select {
-    font-family: ibm-plex-sans;
+form > select {
+  font-family: airbnb-medium;
 }
 
 select {
-    font-size: 1rem;
-    padding: 0.5em;
-    border-radius: 3px;
-    width: 80%
+  font-size: 1rem;
+  padding: 0.5em;
+  border-radius: 3px;
+  width: 80%
 }
 
 .input-container {
-    display: flex;
-    width: 80%;
+  display: flex;
+  width: 80%;
 }
 
 input {
-    font-size: 1rem;
-    padding: 0.6em;
-    border: 0.1px solid #000;
-    border-radius: 3px;
-    width: 48%
+  font-size: 1rem;
+  padding: 0.6em;
+  border: none;
+  border-bottom: 2px solid rgba(235, 111, 146, 1);
+  outline: none;
+  box-shadow: none;
+  font-family: airbnb-medium;
+  width: 48%;
+  background-color: var(--prim-bg);
+  color: var(--prim);
+}
+
+input::placeholder {
+  color: var(--prim);
+  font-family: airbnb-medium;
+}
+
+input:focus::placeholder {
+  color: var(--prim-lgt);
+  transition: 250ms ease-in-out;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 1px 50px rgba(173, 216, 230, 0.05);
+  color: var(--prim-lgt);
+  border-color: var(--prim-lgt);
+  transition: 250ms ease-in-out;
+}
+
+select {
+  background-color: var(--prim-bg);
+  color: var(--prim);
+  box-shadow: none;
+  border: none;
+  border: 2px solid var(--prim);
+  outline: none;
+}
+
+select::-webkit-scrollbar {
+  width: 10px;
+  background-color: var(--prim-bg);
+}
+
+select::-webkit-scrollbar-thumb {
+  background-color: var(--prim-lgt);
+}
+
+select:focus {
+  outline: none;
+  box-shadow: 0 1px 50px rgba(173, 216, 230, 0.08);
+  color: var(--prim-lgt);
+  border: 2px solid var(--prim-lgt);
+  transition: 250ms ease-in-out;
+}
+
+option {
+  outline: none;
 }
 
 #quantity {
-    margin-right: 2%
+  margin-right: 2%
 }
 
 button {
-    font-size: 1rem;
-    padding: 0.5em;
-    font-family: airbnb-medium;
-    width: 10vw;
-    background-color: #000;
-    color: #fff;
-    border: 0.1px solid #fff;
-    border-radius: 3px
+  font-size: 1rem;
+  padding: 0.5em;
+  font-family: airbnb-medium;
+  width: 10vw;
+  background-color: var(--prim-bg);
+  color: var(--prim);
+  border: 2px solid var(--prim);
+  border-radius: 3px;
+  box-shadow: none;
 }
 
 button:hover {
-    cursor: pointer
+  cursor: pointer;
+  background-color: var(--prim);
+  box-shadow: 0 1px 50px 5px rgba(235, 111, 146, 0.1);
+  color: var(--prim-bg);
+  transition: 250ms ease-in-out;
 }
