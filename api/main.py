@@ -1,6 +1,9 @@
 import os
 from flask import Flask
+from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
+
+load_dotenv()
 
 app = Flask(__name__, instance_relative_config=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'sqlite:///database.db'
