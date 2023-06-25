@@ -1,1 +1,5 @@
-result
+{% extends 'base.html' %}
+
+{% block content %}
+<img src="{{ url_for('static', filename='chart.png') }}" alt="chart visualization">
+{% endblock content %}
