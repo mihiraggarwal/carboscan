@@ -6,7 +6,10 @@ from package.models.product import Product
 
 bp = Blueprint('index', __name__)
 
-res = Product.query.all()
+from package import app
+with app.app_context():
+    res = Product.query.all()
+
 products = [{"id": i.id, "name": i.name} for i in res]
 
 countries = [
