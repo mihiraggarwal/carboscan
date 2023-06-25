@@ -6,7 +6,7 @@ from package.models.product import Product
 
 bp = Blueprint('index', __name__)
 
-from package import app
+from package.main import app
 with app.app_context():
     res = Product.query.all()
 
