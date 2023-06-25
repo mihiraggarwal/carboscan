@@ -6,3 +6,4 @@
 .env
 database.db
 *.csv
+/test
