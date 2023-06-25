@@ -5,3 +5,4 @@
 /instance
 .env
 database.db
+*.csv

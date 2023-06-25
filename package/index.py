@@ -1,6 +1,13 @@
-from flask import Blueprint, render_template, request
+import os
+import random
+from flask import Blueprint, make_response, render_template, request
+
+from package.models.product import Product
 
 bp = Blueprint('index', __name__)
+
+res = Product.query.all()
+products = [{"id": i.id, "name": i.name} for i in res]
 
 countries = [
     { "text": "Afghanistan", "value": "AF" },
@@ -251,6 +258,21 @@ countries = [
 @bp.route('/', methods=['GET'])
 def index():
     country = request.args.get('country')
-    if country is None:
-        return render_template("index.html", countries=countries)
-    return render_template("index.html", countries=countries, country=country)
+    if not 'uid' in request.cookies:
+        uid = random.randint(10000000, 99999999)
+        while os.path.isfile(f'{uid}.csv'):
+            uid = random.randint(10000000, 99999999)
+        with open(f'{uid}.csv', 'a+'):
+            pass
+        if country is None:
+            resp = make_response(render_template('index.html', countries=countries, products=products))
+        else:
+            resp = make_response(render_template('index.html', countries=countries, products=products, country=country))
+        cookie = f'{uid}'.encode()
+        resp.set_cookie('uid', cookie)
+        return resp
+    else:
+        if country is None:
+            return render_template("index.html", countries=countries, products=products)
+        else:
+            return render_template("index.html", countries=countries, products=products, country=country)            
