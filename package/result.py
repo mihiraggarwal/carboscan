@@ -1,4 +1,6 @@
 import os
+import matplotlib.pyplot as plt
+import subprocess
 from flask import Blueprint, make_response, redirect, render_template, request, url_for
 
 from package.models.product import Product
@@ -14,7 +16,8 @@ def result():
             for i in rl:
                 i = i.split()
                 i = [*i[:-1], i[-1][:-1]]
-                # calculations
+                # calculation
+
         resp = make_response(render_template('result.html'))
         resp.set_cookie('uid', '', expires=0)
         os.remove(f'{cookie}.csv')
