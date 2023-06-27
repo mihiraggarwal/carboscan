@@ -82,7 +82,9 @@ input {
 
 #date {
   color-scheme: dark;
-  width: 77%
+  width: 77%;
+  border: 2px solid var(--prim);
+  border-radius: 3px
 }
 
 input::placeholder {
@@ -111,7 +113,6 @@ select {
   background-color: var(--prim-bg);
   color: var(--prim);
   box-shadow: none;
-  border: none;
   border: 2px solid var(--prim);
   outline: none;
 }

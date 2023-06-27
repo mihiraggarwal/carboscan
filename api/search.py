@@ -9,3 +9,11 @@ def search():
     with open(f'{cookie}.csv', 'a') as f:
         f.write(data)
     return redirect(url_for('index.index', country=request.form['country']))
+
+@bp.route('/flight', methods=['POST'])
+def flight():
+    data = f"{request.form['origin']},{request.form['destination']},{request.form['airline']},{request.form['flight']},{request.form['date']}\n"
+    cookie = request.cookies.get('uid')
+    with open(f'{cookie}-flight.csv', 'a') as f:
+        f.write(data)
+    return redirect(url_for('index.index'))

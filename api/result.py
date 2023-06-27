@@ -189,6 +189,7 @@ def result():
         resp = make_response(render_template('result.html', total_emission=total_emission, day_emmission=day_emmission))
         resp.set_cookie('uid', '', expires=0)
         os.remove(f'{cookie}.csv')
+        os.remove(f'{cookie}-flight.csv')
         return resp
     else:
         return redirect(url_for('index.index'))

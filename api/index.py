@@ -267,6 +267,8 @@ def index():
             uid = random.randint(10000000, 99999999)
         with open(f'{uid}.csv', 'a+'):
             pass
+        with open(f'{uid}-flight.csv', 'a+'):
+            pass
         if country is None:
             resp = make_response(render_template('index.html', countries=countries, products=products))
         else:
