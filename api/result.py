@@ -12,13 +12,6 @@ from api.models.product import Product
 bp = Blueprint('result', __name__)
 load_dotenv()
 
-def dbsearch(id_list:list):
-    plist = []
-    for i in id_list:
-        product = Product.query.filter_by(id=i).all()
-        plist.append(product)
-    return plist
-
 def add_rose_pine_styles(overwrite: bool=False):
     stylelib_path = f"{mpl.get_configdir()}/stylelib"
     Path(stylelib_path).mkdir(exist_ok=True)
@@ -100,27 +93,17 @@ def calc_emission(duration,country_id,production_emission,power_duration,rating,
 def result():
     cookie = request.cookies.get('uid')
     if cookie is not None:
-        id_list = []
+        emission_dict = {}
         with open(f'{cookie}.csv', 'r') as f:
             rl = f.readlines()
             for i in rl:
                 i = i.split(',')
                 i = [*i[:-1], i[-1][:-1]]
-                id_list.append(i[1])
-            db_records = dbsearch(id_list)
-
-        emission_dict = {}
-        for elem in rl:
-            elem = elem.split(',')
-            elem = [*elem[:-1], elem[-1][:-1]]
-            for i in db_records:
-                if int(i[0].id) == int(elem[1]):
-                    name,power_duration,production_emission,prod_rating = i[0].name,int(i[0].power_duration),int(i[0].production_emmission),float(i[0].power_rating)
-                    break
-
-            prod_emission = calc_emission(int(elem[3]),elem[0],production_emission,power_duration,prod_rating,int(elem[2]))
-            
-            emission_dict[name] = prod_emission,production_emission
+                product = Product.query.filter_by(id=i[1]).all()
+                name,power_duration,production_emission,prod_rating = product[0].name,int(product[0].power_duration),int(product[0].production_emmission),float(product[0].power_rating)
+                prod_emission = calc_emission(int(i[3]),i[0],production_emission,power_duration,prod_rating,int(i[2]))
+                emission_dict[name] = prod_emission,production_emission
+                
             products_emission = [i[0] for i in emission_dict.values()]
             total_emission = sum(products_emission)
             day_emmission = total_emission/365
