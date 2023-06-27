@@ -1,4 +1,8 @@
 import os
+import os.path
+from pathlib import Path
+import matplotlib as mpl
+import requests
 import matplotlib.pyplot as plt
 import subprocess
 from flask import Blueprint, make_response, redirect, render_template, request, url_for
@@ -43,7 +47,22 @@ def runcmd(cmd, verbose = False, *args, **kwargs):
     std_out, std_err = process.communicate()
     if verbose:
         print(std_out.strip(), std_err)
-    pass
+    print("ran runcmd")
+
+def add_rose_pine_styles(overwrite: bool=False):
+    # create style folder if not exists
+    stylelib_path = f"{mpl.get_configdir()}/stylelib"
+    Path(stylelib_path).mkdir(exist_ok=True)
+    
+    # download the styles from the github-repo if they don't exist
+    for style in ["rose-pine-dawn.mplstyle", "rose-pine-moon.mplstyle", "rose-pine.mplstyle"]:
+        filename = f"{stylelib_path}/{style}"
+        if not overwrite and os.path.isfile(filename):
+            continue
+        # fetch and add to folder
+        content = requests.get(f"https://raw.githubusercontent.com/h4pZ/rose-pine-matplotlib/main/themes/{style}").text
+        with open(filename, "w+") as f:
+            f.write(content)
 
 def create_subplots(elem_dict):
     # product name: product emission, manufacturing emission
@@ -125,7 +144,6 @@ def calc_emission(duration,country_id,production_emission,power_duration,rating,
 def result():
     cookie = request.cookies.get('uid')
     if cookie is not None:
-        # runcmd("wget -P /tmp https://raw.githubusercontent.com/h4pZ/rose-pine-matplotlib/main/themes/rose-pine.mplstyle")
         id_list = []
         with open(f'{cookie}.csv', 'r') as f:
             rl = f.readlines()
@@ -160,7 +178,12 @@ def result():
 
             print(emission_dict)
 
-        with plt.style.context("dark_background"):
+        # runcmd("wget -P /tmp https://raw.githubusercontent.com/h4pZ/rose-pine-matplotlib/main/themes/rose-pine.mplstyle")
+        add_rose_pine_styles(overwrite=False)
+
+        print(plt.style.available)
+
+        with plt.style.context("rose-pine"):
             create_subplots(emission_dict)
 
         resp = make_response(render_template('result.html', total_emission=total_emission, day_emmission=day_emmission))
