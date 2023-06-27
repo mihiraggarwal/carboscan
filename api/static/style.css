@@ -24,7 +24,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 5vh;
+  gap: 10vh;
 }
 
 h1 {
@@ -33,9 +33,15 @@ h1 {
   color: var(--prim);
 }
 
+.form-container {
+  display: flex;
+  flex-direction: row;
+  gap: 2vw;
+}
+
 form {
   display: flex;
-  width: 50%;
+  width: 40vw;
   justify-content: center;
   flex-direction: column;
   align-items: center;
@@ -45,20 +51,20 @@ form {
   gap: 5vh
 }
 
-form > select {
+.devices-text {
   font-family: airbnb-medium;
+  font-size: 1.5em;
+  color: var(--prim);
 }
 
-select {
-  font-size: 1rem;
-  padding: 0.5em;
-  border-radius: 3px;
-  width: 80%
+form > select {
+  font-family: airbnb-medium;
 }
 
 .input-container {
   display: flex;
   width: 80%;
+  gap: 2%
 }
 
 input {
@@ -72,6 +78,11 @@ input {
   width: 48%;
   background-color: var(--prim-bg);
   color: var(--prim);
+}
+
+#date {
+  color-scheme: dark;
+  width: 77%
 }
 
 input::placeholder {
@@ -93,6 +104,10 @@ input:focus {
 }
 
 select {
+  font-size: 1rem;
+  padding: 0.5em;
+  border-radius: 3px;
+  width: 80%;
   background-color: var(--prim-bg);
   color: var(--prim);
   box-shadow: none;
@@ -120,10 +135,6 @@ select:focus {
 
 option {
   outline: none;
-}
-
-#quantity {
-  margin-right: 2%
 }
 
 button {

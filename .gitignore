@@ -7,3 +7,4 @@
 database.db
 *.csv
 /test
+/api/static/chart.png
