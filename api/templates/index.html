@@ -55,7 +55,16 @@
         <input type="text" name="airline" placeholder="Airline code" id="airline" required />
         <input type="text" name="flight" placeholder="Flight number" id="flight" required />
       </div>
-      <input type="text" name="date" placeholder="Date of departure" id="date" onfocus="(this.type='date')" required />
+      <div class="input-container">
+        <input type="text" name="date" placeholder="Date of departure" id="date" onfocus="(this.type='date')" required />
+        <select name="class" id="class" required>
+          <option value="" label="Select a class" selected="selected">Select a device</option>
+          <option value="economy">Economy</option>
+          <option value="premiumEconomy">Premium Economy</option>
+          <option value="business">Business</option>
+          <option value="first">First</option>
+        </select>
+      </div>
       <button type="submit" name="submit" id="addBtn">Add</button>
     </div>
   </form>

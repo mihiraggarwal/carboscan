@@ -12,7 +12,7 @@ def search():
 
 @bp.route('/flight', methods=['POST'])
 def flight():
-    data = f"{request.form['origin']},{request.form['destination']},{request.form['airline']},{request.form['flight']},{request.form['date']}\n"
+    data = f"{request.form['origin']},{request.form['destination']},{request.form['airline']},{request.form['flight']},{request.form['date']},{request.form['class']}\n"
     cookie = request.cookies.get('uid')
     with open(f'{cookie}-flight.csv', 'a') as f:
         f.write(data)

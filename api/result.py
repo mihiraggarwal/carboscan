@@ -24,14 +24,14 @@ def add_rose_pine_styles(overwrite: bool=False):
         with open(filename, "w+") as f:
             f.write(content)
 
-def create_subplots(elem_dict):
-    X = list(elem_dict.keys())
-    values = list(elem_dict.values())
+def create_subplots(elem_dict, flights):
+    X = [*list(elem_dict.keys()), "Flights"]
+    values = [*list(elem_dict.values()), [sum(flights), sum(flights)]]
     products_emission = [i[0] for i in values]
     
     Y1 = sum(products_emission)
     Y2 = products_emission
-    Y3 = [i/(365*24) for i in products_emission]
+    Y3 = [i/(365*24) for i in products_emission[:-1]]
     Y4 = [i[0] for i in values]
     Y5 = [i[1] for i in values]
     
@@ -89,6 +89,29 @@ def calc_emission(duration,country_id,production_emission,power_duration,rating,
     total_emissions = production_emission*quantity + post_response['constituent_gases']['co2e_total']
     return total_emissions
 
+def flight_emission(origin, destination, airline_code, flight_no, date, flight_class):
+    year, month, day = date.split('-')
+    data = {
+        "flights": [
+            {
+                "origin": origin, 
+                "destination": destination, 
+                "operating_carrier_code": airline_code,
+                "flight_number": flight_no, 
+                "departure_date": {"year": year, "month": month, "day": day} 
+            }
+        ]
+    }
+
+    API_KEY = os.environ.get('GOOGLE_API_KEY')
+    url = f"https://travelimpactmodel.googleapis.com/v1/flights:computeFlightEmissions?key={API_KEY}"
+
+    post_request = requests.post(url, json = data, headers = {"Content-Type":"application/json"})
+
+    post_response = post_request.json()
+    print(post_response)
+    return post_response['flightEmissions'][0]['emissionsGramsPerPax'][flight_class]
+
 @bp.route('/', methods=['GET'])
 def result():
     cookie = request.cookies.get('uid')
@@ -96,21 +119,33 @@ def result():
         emission_dict = {}
         with open(f'{cookie}.csv', 'r') as f:
             rl = f.readlines()
-            for i in rl:
-                i = i.split(',')
-                i = [*i[:-1], i[-1][:-1]]
-                product = Product.query.filter_by(id=i[1]).all()
-                name,power_duration,production_emission,prod_rating = product[0].name,int(product[0].power_duration),int(product[0].production_emmission),float(product[0].power_rating)
-                prod_emission = calc_emission(int(i[3]),i[0],production_emission,power_duration,prod_rating,int(i[2]))
-                emission_dict[name] = prod_emission,production_emission
-                
-            products_emission = [i[0] for i in emission_dict.values()]
-            total_emission = sum(products_emission)
-            day_emmission = total_emission/365
+            if len(rl) != 0:
+                for i in rl:
+                    i = i.split(',')
+                    i = [*i[:-1], i[-1][:-1]]
+                    product = Product.query.filter_by(id=i[1]).all()
+                    name,power_duration,production_emission,prod_rating = product[0].name,int(product[0].power_duration),int(product[0].production_emmission),float(product[0].power_rating)
+                    prod_emission = calc_emission(int(i[3]),i[0],production_emission,power_duration,prod_rating,int(i[2]))
+                    emission_dict[name] = prod_emission,production_emission
+
+        
+        with open(f'{cookie}-flight.csv', 'r') as f:
+            fl = f.readlines()
+            if len(fl) != 0:
+                flights = []
+                for i in fl:
+                    i = i.split(',')
+                    i = [*i[:-1], i[-1][:-1]]
+                    origin, destination, airline_code, flight_no, date, flight_class = i
+                    flights.append(flight_emission(origin, destination, airline_code, flight_no, date, flight_class) / 1000)
 
         add_rose_pine_styles(overwrite=False)
         with plt.style.context("rose-pine"):
-            create_subplots(emission_dict)
+            create_subplots(emission_dict, flights)
+            
+        products_emission = [*[i[0] for i in emission_dict.values()], sum(flights)]
+        total_emission = sum(products_emission)
+        day_emmission = total_emission/365
 
         resp = make_response(render_template('result.html', total_emission=total_emission, day_emmission=day_emmission))
         resp.set_cookie('uid', '', expires=0)
