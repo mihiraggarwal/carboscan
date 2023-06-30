@@ -15,6 +15,7 @@ db = SQLAlchemy(app)
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 from api.models.product import Product
+from api.models.input import Input
 
 def create_app(test_config=None):
     

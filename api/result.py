@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 from flask import Blueprint, make_response, redirect, render_template, request, url_for
 
+from api.main import db
 from api.models.product import Product
+from api.models.input import Input
 
 bp = Blueprint('result', __name__)
 load_dotenv()
@@ -31,7 +33,7 @@ def create_subplots(elem_dict, flights):
     
     Y1 = sum(products_emission)
     Y2 = products_emission
-    Y3 = [i/(365*24) for i in products_emission[:-1]]
+    Y3 = [i/(365*24) for i in products_emission]
     Y4 = [i[0] for i in values]
     Y5 = [i[1] for i in values]
     
@@ -46,7 +48,7 @@ def create_subplots(elem_dict, flights):
     axis[0, 1].set_title("CO2 Emission per Product(kg/annum)")
     
     # 3. Hourly emission per device
-    axis[1, 0].bar(X, Y3)
+    axis[1, 0].bar(X[:-1], Y3[:-1])
     axis[1, 0].set_title("Hourly Emission(kg) per Device")
     
     # 4. broken down emission - manufacturing+usage emission
@@ -90,7 +92,7 @@ def calc_emission(duration,country_id,production_emission,power_duration,rating,
     return total_emissions
 
 def flight_emission(origin, destination, airline_code, flight_no, date, flight_class):
-    year, month, day = date.split('-')
+    year, month, day = date.year, date.month, date.day
     data = {
         "flights": [
             {
@@ -117,27 +119,21 @@ def result():
     cookie = request.cookies.get('uid')
     if cookie is not None:
         emission_dict = {}
-        with open(f'{cookie}.csv', 'r') as f:
-            rl = f.readlines()
-            if len(rl) != 0:
-                for i in rl:
-                    i = i.split(',')
-                    i = [*i[:-1], i[-1][:-1]]
-                    product = Product.query.filter_by(id=i[1]).all()
-                    name,power_duration,production_emission,prod_rating = product[0].name,int(product[0].power_duration),int(product[0].production_emmission),float(product[0].power_rating)
-                    prod_emission = calc_emission(int(i[3]),i[0],production_emission,power_duration,prod_rating,int(i[2]))
-                    emission_dict[name] = prod_emission,production_emission
+        devices = Input.query.filter_by(cookie=cookie).all()
+        for i in devices:
+            if i.type_device:
+                product = Product.query.filter_by(id=i.device_name).all()
+                name, power_duration, production_emission, prod_rating = product[0].name, int(product[0].power_duration), int(product[0].production_emmission), float(product[0].power_rating)
+                prod_emission = calc_emission(int(i.device_time), i.device_country, production_emission, power_duration, prod_rating, int(i.device_quantity))
+                emission_dict[name] = prod_emission, production_emission
 
-        
-        with open(f'{cookie}-flight.csv', 'r') as f:
-            fl = f.readlines()
-            if len(fl) != 0:
+            else:
                 flights = []
-                for i in fl:
-                    i = i.split(',')
-                    i = [*i[:-1], i[-1][:-1]]
-                    origin, destination, airline_code, flight_no, date, flight_class = i
-                    flights.append(flight_emission(origin, destination, airline_code, flight_no, date, flight_class) / 1000)
+                origin, destination, airline_code, flight_no, date, flight_class = i.flight_origin, i.flight_destination, i.flight_airline, i.flight_number, i.flight_date, i.flight_class
+                flights.append(flight_emission(origin, destination, airline_code, flight_no, date, flight_class) / 1000)
+
+            db.session.delete(i)
+        db.session.commit()
 
         add_rose_pine_styles(overwrite=False)
         with plt.style.context("rose-pine"):
@@ -149,8 +145,6 @@ def result():
 
         resp = make_response(render_template('result.html', total_emission=total_emission, day_emmission=day_emmission))
         resp.set_cookie('uid', '', expires=0)
-        os.remove(f'{cookie}.csv')
-        os.remove(f'{cookie}-flight.csv')
         return resp
     else:
         return redirect(url_for('index.index'))
