@@ -165,3 +165,8 @@ p {
   color: #fff;
   font-family: airbnb-medium;
 }
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}

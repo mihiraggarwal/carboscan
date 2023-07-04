@@ -1,13 +1,64 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div>
+<div class="container">
+    <h1 style="margin-bottom: -5ch;">Product Emissions</h1>
     <div>
-        <img class="marginauto" src="{{ url_for('static', filename='chart.png') }}" alt="chart visualization" />
+        <img src="{{ url_for('static', filename='chart.png') }}" alt="chart visualization" />
+        <p>Your total CO2 emissions for the past year: <b>300 kg</b></p>
+        <p>Your daily CO2 emission: <b>0.8 kg</b></p>
     </div>
+    <h1 style="margin-bottom: -5ch;">Flight Emissions</h1>
     <div>
-        <p>Your total CO2 emissions for the past year: <b>{{ total_emission }} kg</b></p>
-        <p>Your average daily CO2 emission: <b>{{ day_emmission }} kg</b></p>
+        <img src="{{ url_for('static', filename='chart1.png') }}" alt="chart visualization" />
+        <p>Your total flight CO2 emission: <b>500 kg</b></p>
     </div>
+    <h1>Device ID Allocation</h1>
+    <table style="width:80%;margin-bottom: 10ch;">
+        <tr>
+            <th>ID</th>
+            <th>Device Name</th>
+        </tr>
+        <tr>
+            <td>16</td>
+            <td>Prod 1</td>
+        </tr>
+        <tr>
+            <td>22</td>
+            <td>Prod 2</td>
+        </tr>
+        <tr>
+            <td>34</td>
+            <td>Prod 3</td>
+        </tr>
+        <tr>
+            <td>32</td>
+            <td>Prod 4</td>
+        </tr>
+        <tr>
+            <td>28</td>
+            <td>Prod 5</td>
+        </tr>
+    </table>
 </div>
+    
+
+
+<!-- <table class="table table-bordered">
+    <thead>
+        <tr>
+            {% for k in header %}
+            <th>{{k}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in rows %}
+            <tr>
+                <td>{{r.id}}</td>
+                <td>{{r.name}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table> -->
 {% endblock content %}
