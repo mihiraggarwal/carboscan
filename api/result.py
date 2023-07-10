@@ -17,18 +17,30 @@ load_dotenv()
 def add_rose_pine_styles(overwrite: bool=False):
     stylelib_path = f"{mpl.get_configdir()}/stylelib"
     Path(stylelib_path).mkdir(exist_ok=True)
+
+    print(stylelib_path)
     
     for style in ["rose-pine-dawn.mplstyle", "rose-pine-moon.mplstyle", "rose-pine.mplstyle"]:
         filename = f"{stylelib_path}/{style}"
+        print(filename)
         if not overwrite and os.path.isfile(filename):
             continue
         content = requests.get(f"https://raw.githubusercontent.com/h4pZ/rose-pine-matplotlib/main/themes/{style}").text
-        with open(filename, "w+") as f:
+        print(content)
+        with open(filename, "wr") as f:
             f.write(content)
+            f.seek(0)
+            print(f.read())
+            print('read')
 
-def create_subplots(elem_dict, flights):
-    X = [*list(elem_dict.keys()), "Flights"]
-    values = [*list(elem_dict.values()), [sum(flights), sum(flights)]]
+def create_subplots(elem_dict, flights=None):
+    if flights is not None:
+        X = [*list(elem_dict.keys()), "Flights"]
+        values = [*list(elem_dict.values()), [sum(flights), sum(flights)]]
+    else:
+        X = [*list(elem_dict.keys())]
+        values = [*list(elem_dict.values())]
+    
     products_emission = [i[0] for i in values]
     
     Y1 = sum(products_emission)
@@ -69,15 +81,15 @@ def create_subplots(elem_dict, flights):
 
     fig, ax = plt.subplots()
     X1 = ['total emission']
-    value = [94647]
+    value = [sum(flights)]
     ax.bar(X1,value)
     
     fig.set_size_inches(12.5, 7.5)
-    if os.path.exists("./static/chart1.png"):
-        os.remove("./static/chart1.png")
-        plt.savefig("./static/chart1.png")
+    if os.path.exists("api/static/chart1.png"):
+        os.remove("api/static/chart1.png")
+        plt.savefig("api/static/chart1.png")
     else:
-        plt.savefig("./static/chart1.png")
+        plt.savefig("api/static/chart1.png")
 
 def api_func(country_id,yearly_pow):
     data = {
@@ -134,6 +146,7 @@ def result():
     cookie = request.cookies.get('uid')
     if cookie is not None:
         emmission_dict = {}
+        flights = []
         devices = Input.query.filter_by(cookie=cookie).all()
         for i in devices:
             if i.type_device:
@@ -143,7 +156,6 @@ def result():
                 emmission_dict[name] = prod_emission, production_emission
 
             else:
-                flights = []
                 origin, destination, airline_code, flight_no, date, flight_class = i.flight_origin, i.flight_destination, i.flight_airline, i.flight_number, i.flight_date, i.flight_class
                 flights.append(flight_emission(origin, destination, airline_code, flight_no, date, flight_class) / 1000)
 
@@ -152,13 +164,19 @@ def result():
 
         add_rose_pine_styles(overwrite=False)
         with plt.style.context("rose-pine"):
-            create_subplots(emmission_dict, flights)
+            if len(flights) != 0:
+                create_subplots(emmission_dict, flights)
+            else:
+                create_subplots(emmission_dict)
             
         products_emission = [*[i[0] for i in emmission_dict.values()], sum(flights)]
         total_emission = sum(products_emission)
         day_emmission = total_emission/365
 
-        resp = make_response(render_template('result.html', total_emission=total_emission, day_emmission=day_emmission))
+        if len(flights) != 0:
+            resp = make_response(render_template('result.html', total_emission=total_emission, day_emmission=day_emmission, flight_emission=sum(flights)))
+        else:
+            resp = make_response(render_template('result.html', total_emission=total_emission, day_emmission=day_emmission, flight_emission=None))
         resp.set_cookie('uid', '', expires=0)
         return resp
     else:
