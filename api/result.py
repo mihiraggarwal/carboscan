@@ -58,11 +58,26 @@ def create_subplots(elem_dict, flights):
 
     plt.subplots_adjust(hspace=0.5,wspace=0.5)
 
+    figure.set_size_inches(12.5, 7.5)
+    
     if os.path.exists("api/static/chart.png"):
         os.remove("api/static/chart.png")
         plt.savefig("api/static/chart.png")
     else:
         plt.savefig("api/static/chart.png")
+
+
+    fig, ax = plt.subplots()
+    X1 = ['total emission']
+    value = [94647]
+    ax.bar(X1,value)
+    
+    fig.set_size_inches(12.5, 7.5)
+    if os.path.exists("./static/chart1.png"):
+        os.remove("./static/chart1.png")
+        plt.savefig("./static/chart1.png")
+    else:
+        plt.savefig("./static/chart1.png")
 
 def api_func(country_id,yearly_pow):
     data = {
@@ -118,14 +133,14 @@ def flight_emission(origin, destination, airline_code, flight_no, date, flight_c
 def result():
     cookie = request.cookies.get('uid')
     if cookie is not None:
-        emission_dict = {}
+        emmission_dict = {}
         devices = Input.query.filter_by(cookie=cookie).all()
         for i in devices:
             if i.type_device:
                 product = Product.query.filter_by(id=i.device_name).all()
                 name, power_duration, production_emission, prod_rating = product[0].name, int(product[0].power_duration), int(product[0].production_emmission), float(product[0].power_rating)
                 prod_emission = calc_emission(int(i.device_time), i.device_country, production_emission, power_duration, prod_rating, int(i.device_quantity))
-                emission_dict[name] = prod_emission, production_emission
+                emmission_dict[name] = prod_emission, production_emission
 
             else:
                 flights = []
@@ -137,9 +152,9 @@ def result():
 
         add_rose_pine_styles(overwrite=False)
         with plt.style.context("rose-pine"):
-            create_subplots(emission_dict, flights)
+            create_subplots(emmission_dict, flights)
             
-        products_emission = [*[i[0] for i in emission_dict.values()], sum(flights)]
+        products_emission = [*[i[0] for i in emmission_dict.values()], sum(flights)]
         total_emission = sum(products_emission)
         day_emmission = total_emission/365
 
