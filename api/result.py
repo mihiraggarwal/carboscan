@@ -27,11 +27,8 @@ def add_rose_pine_styles(overwrite: bool=False):
             continue
         content = requests.get(f"https://raw.githubusercontent.com/h4pZ/rose-pine-matplotlib/main/themes/{style}").text
         print(content)
-        with open(filename, "wr") as f:
+        with open(filename, "w") as f:
             f.write(content)
-            f.seek(0)
-            print(f.read())
-            print('read')
 
 def create_subplots(elem_dict, flights=None):
     if flights is not None:
