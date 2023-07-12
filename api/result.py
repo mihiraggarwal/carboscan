@@ -159,8 +159,9 @@ def result():
             db.session.delete(i)
         db.session.commit()
 
-        add_rose_pine_styles(overwrite=False)
-        with plt.style.context("rose-pine"):
+        # add_rose_pine_styles(overwrite=False)
+        # with plt.style.context("rose-pine"):
+        with plt.style.context("dark_background"):
             if len(flights) != 0:
                 create_subplots(emmission_dict, flights)
             else:
